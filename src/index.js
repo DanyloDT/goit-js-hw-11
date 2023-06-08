@@ -21,12 +21,12 @@ const onSearchFormEl = async event => {
         const { data } = await pixabayAPI.fetchPixabay()
     
         if (data.totalHits === 0) {
-            gallery.innerHTML = '';
+            gallery.innerHTML === '';
             loadMoreBtn.classList.add('is-hidden')
-            Notiflix.failure('Sorry, there are no images matching your search query. Please try again.'
-      );
-                return
-            }
+            return Notiflix.failure('Sorry, there are no images matching your search query. Please try again.');
+            
+        }
+
         if (data.totalHits !== 1) {
             loadMoreBtn.classList.remove('is-hidden')
         }
