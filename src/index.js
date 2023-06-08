@@ -16,25 +16,35 @@ const onSearchFormEl = async event => {
     event.preventDefault()
     pixabayAPI.page = 1;
     pixabayAPI.query = event.target.elements.searchQuery.value.trim();
+
+    // if (pixabayAPI.query === "") {
+    //     return
+    // }
     
     try {
         const { data } = await pixabayAPI.fetchPixabay()
+       
     
-        if (data.totalHits === 0) {
-            gallery.innerHTML === '';
+        if (data.totalHits === 0 || pixabayAPI.query === "") {
             loadMoreBtn.classList.add('is-hidden')
-            return Notiflix.failure('Sorry, there are no images matching your search query. Please try again.');
-            
+            Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+            return    
         }
+            
+        if (data.totalHits <= 40 ) {
+            loadMoreBtn.classList.add('is-hidden')
 
-        if (data.totalHits !== 1) {
+        }
+        
+        if (data.totalHits > 40) {
             loadMoreBtn.classList.remove('is-hidden')
         }
-            
         gallery.innerHTML = createImgCards(data.hits);
-        Notiflix.success(`Hooray! We found ${data.totalHits} images.`);
-        new SimpleLightbox('.gallery a', {captions: true, captionDelay: 250});
         
+        new SimpleLightbox('.gallery a', {captions: true, captionDelay: 250});
+        Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
+        
+
     } catch (err) {
         console.log(err);
         
@@ -47,13 +57,16 @@ const onLoadMore = async () => {
      
     try {
         const { data } = await pixabayAPI.fetchPixabay()
-    
+        
         gallery.insertAdjacentHTML('beforeend', createImgCards(data.hits));
         new SimpleLightbox('.gallery a', {captions: true, captionDelay: 250}).refresh()
             
-        if (pixabayAPI.page === data.totalHits) {
-                loadMoreBtn.classList.add('is-hidden')
-            }
+             
+        if (pixabayAPI.page * pixabayAPI.perPage >= data.totalHits) {
+            loadMoreBtn.classList.add('is-hidden')
+            Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
+            return
+        }
         
     } catch (err) {
         console.log(err);
